@@ -1,0 +1,176 @@
+
+    <div class="checkout-page">
+      <!-- Header -->
+      <header class="checkout-header">
+        <div class="container header-inner">
+          <!-- Click logo to go home -->
+          <div class="logo" (click)="goHome()">
+            <div class="logo-icon">S</div>
+            <span class="logo-text">Salon Tóc</span>
+          </div>
+          
+          <div class="step-indicator">
+            <span class="step active">
+              <span class="step-num">1</span>
+              Thanh toán
+            </span>
+            <div class="step-line"></div>
+            <span class="step">
+              <span class="step-num">2</span>
+              Hoàn tất
+            </span>
+          </div>
+        </div>
+      </header>
+
+      <main class="container main-content">
+        <!-- Back button goes to home -->
+        <button class="btn-back" (click)="goHome()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+          Quay lại trang chủ
+        </button>
+
+        <div class="checkout-grid">
+          <!-- Cột Trái: Form thông tin -->
+          <div class="form-column">
+            <!-- Thông tin vận chuyển -->
+            <section class="checkout-section">
+              <h2 class="section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                Thông tin nhận hàng
+              </h2>
+              
+              <div class="form-fields">
+                <div class="field">
+                  <label>Họ và tên người nhận</label>
+                  <input type="text" placeholder="Ví dụ: Nguyễn Văn A">
+                </div>
+                
+                <!-- Fixed spacing to avoid overlap -->
+                <div class="field-row">
+                  <div class="field">
+                    <label>Số điện thoại</label>
+                    <input type="tel" placeholder="0xxx xxx xxx">
+                  </div>
+                  <div class="field">
+                    <label>Email liên hệ</label>
+                    <input type="email" placeholder="abc@gmail.com">
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label>Địa chỉ giao hàng</label>
+                  <textarea rows="3" placeholder="Số nhà, tên đường, phường/ xã, quận/ huyện..."></textarea>
+                </div>
+              </div>
+            </section>
+
+            <!-- Phương thức thanh toán -->
+            <section class="checkout-section">
+              <h2 class="section-title">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+                Phương thức thanh toán
+              </h2>
+
+              <div class="payment-list">
+                @for (method of paymentMethods; track method.id) {
+                  <div 
+                    class="payment-item"
+                    [class.active]="selectedMethod() === method.id"
+                    (click)="selectedMethod.set(method.id)"
+                  >
+                    <div class="item-icon-wrapper">
+                       <span class="item-emoji">{{ method.icon }}</span>
+                    </div>
+                    <div class="item-info">
+                      <p class="name">{{ method.name }}</p>
+                      <p class="desc">{{ method.desc }}</p>
+                    </div>
+                    <div class="item-radio-wrapper">
+                      <!-- Enhanced radio dot display -->
+                      <div class="radio-circle">
+                        <div class="radio-dot" *ngIf="selectedMethod() === method.id"></div>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            </section>
+          </div>
+
+          <!-- Cột Phải: Tóm tắt đơn hàng -->
+          <div class="summary-column">
+            <div class="summary-card">
+              <div class="summary-header">
+                <h2>Chi tiết đơn hàng</h2>
+                <span class="item-count">{{ cart().length }} món</span>
+              </div>
+              
+              <div class="summary-body">
+                <div class="product-list">
+                  @for (item of cart(); track item.id) {
+                    <div class="product-item">
+                      <div class="product-img-container">
+                        <img [src]="item.image" [alt]="item.name">
+                        <span class="qty-badge">{{ item.qty }}</span>
+                      </div>
+                      <div class="product-details">
+                        <h4 class="product-name">{{ item.name }}</h4>
+                        <p class="product-brand">{{ item.brand }}</p>
+                        <p class="product-price">{{ item.price | number:'1.0-0' }}đ</p>
+                      </div>
+                    </div>
+                  }
+                </div>
+
+                <!-- NEW: Discount code box -->
+                <div class="discount-container">
+                  <div class="discount-field">
+                    <input type="text" placeholder="Nhập mã giảm giá (VD: SALON10)">
+                    <button class="btn-apply">Áp dụng</button>
+                  </div>
+                </div>
+
+                <div class="price-breakdown">
+                  <div class="price-row">
+                    <span>Tạm tính</span>
+                    <span class="amount">{{ subtotal() | number:'1.0-0' }}đ</span>
+                  </div>
+                  <div class="price-row">
+                    <span>Phí vận chuyển</span>
+                    <span class="amount free" *ngIf="shippingFee() === 0">Miễn phí</span>
+                    <span class="amount" *ngIf="shippingFee() > 0">{{ shippingFee() | number:'1.0-0' }}đ</span>
+                  </div>
+                  
+                  @if (shippingFee() > 0) {
+                    <div class="free-shipping-tip">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                      Mua thêm <b>{{ (300000 - subtotal()) | number:'1.0-0' }}đ</b> để được Freeship!
+                    </div>
+                  }
+                  
+                  <div class="total-section">
+                    <div class="total-label-box">
+                      <span class="total-label">Tổng thanh toán</span>
+                      <span class="total-amount">{{ (subtotal() + shippingFee()) | number:'1.0-0' }}đ</span>
+                    </div>
+                    <span class="tax-note">(Đã bao gồm VAT nếu có)</span>
+                  </div>
+                </div>
+
+                <button class="btn-checkout">
+                  <span>Xác nhận đặt hàng</span>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+                </button>
+
+                <div class="footer-guarantee">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                  <span>Cam kết sản phẩm chính hãng 100%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  
