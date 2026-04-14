@@ -178,7 +178,11 @@ export class Home implements AfterViewInit, OnDestroy {
     return Math.round(((oldPrice - price) / oldPrice) * 100);
   }
 
-  addToCart(product: any) {
+  addToCart(event: Event, product: any) {
+    if (event) {
+      event.stopPropagation();
+      event.preventDefault();
+    }
     this.cartItems.update(items => {
       const existing = items.find(i => i.id === product.id);
       if (existing) {
